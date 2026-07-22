@@ -290,7 +290,20 @@ const [lastSavedAt, setLastSavedAt] = useState(null);
   return React.createElement("div", { className: "app" },
     React.createElement("header", { className: "header" },
       React.createElement("div", null, React.createElement("p", { className: "eyebrow" }, "Digitale Zählerablesung"), React.createElement("h1", null, "Zählergang")),
-      React.createElement("div", { className: "status-pill" }, session?.fileName || "Keine Datei geöffnet")
+     React.createElement(
+  "div",
+  { className: `status-pill ${isDirty ? "dirty" : "saved"}` },
+  !session
+    ? "Keine Datei geöffnet"
+    : isDirty
+      ? "Nicht gespeichert"
+      : lastSavedAt
+        ? `Gespeichert um ${lastSavedAt.toLocaleTimeString("de-DE", {
+            hour: "2-digit",
+            minute: "2-digit"
+          })}`
+        : session.fileName
+)
     ),
     React.createElement("main", { className: "main" },
       screen === "start" && React.createElement(StartScreen, { session, onOpen: () => fileInput.current?.click(), onNew: startNewSession, onContinue: () => setScreen("locations"), onExport: exportExcel }),
