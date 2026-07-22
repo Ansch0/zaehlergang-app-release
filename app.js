@@ -82,6 +82,8 @@ function App() {
   const [input, setInput] = useState("");
   const [dialog, setDialog] = useState(null);
   const [toast, setToast] = useState("");
+  const [isDirty, setIsDirty] = useState(false);
+const [lastSavedAt, setLastSavedAt] = useState(null);
   const fileInput = useRef(null);
 
   useEffect(() => {
@@ -215,20 +217,56 @@ function App() {
   }
 
   function exportExcel() {
-    if (!session?.workbook) {
-      setDialog({ title: "Export noch nicht möglich", message: "Nach einem Browser-Neustart ist der geladene Excel-Inhalt nicht mehr im Arbeitsspeicher. Bitte die letzte Excel-Datei erneut öffnen; der lokale Zwischenstand bleibt erhalten.", confirmOnly: true });
-      return;
-    }
-    const wb = session.workbook;
-    const dataSheet = wb.Sheets["Daten_Ausdruck"];
-    session.locations.flatMap(x => x.meters).forEach(meter => {
-      XLSX.utils.sheet_add_aoa(dataSheet, [[meter.timestamp || "", meter.current === "" ? "" : numeric(meter.current), meter.previous === "" ? "" : numeric(meter.previous)]], { origin: `B${meter.row}` });
+  if (!session?.workbook) {
+    setDialog({
+      title: "Speichern nicht möglich",
+      message: "Bitte die letzte Excel-Datei erneut öffnen.",
+      confirmOnly: true
     });
-    XLSX.utils.sheet_add_aoa(dataSheet, [[new Date(session.date)]], { origin: "B3" });
-    XLSX.writeFile(wb, session.fileName || "Zaehlergang.xlsx", { bookType: "xlsx" });
-    showToast("Excel-Datei wurde bereitgestellt.");
+    return;
   }
 
+  const wb = session.workbook;
+  const dataSheet = wb.Sheets["Daten_Ausdruck"];
+
+  session.locations
+    .flatMap(location => location.meters)
+    .forEach(meter => {
+      XLSX.utils.sheet_add_aoa(
+        dataSheet,
+        [[
+          meter.timestamp || "",
+          meter.current === "" ? "" : numeric(meter.current),
+          meter.previous === "" ? "" : numeric(meter.previous)
+        ]],
+        { origin: `B${meter.row}` }
+      );
+    });
+
+  XLSX.utils.sheet_add_aoa(
+    dataSheet,
+    [[new Date(session.date)]],
+    { origin: "B3" }
+  );
+
+  XLSX.writeFile(
+    wb,
+    session.fileName || "Zaehlergang.xlsx",
+    { bookType: "xlsx" }
+  );
+
+  const savedAt = new Date();
+
+  setIsDirty(false);
+  setLastSavedAt(savedAt);
+
+  showToast(
+    `Excel gespeichert um ${savedAt.toLocaleTimeString("de-DE", {
+      hour: "2-digit",
+      minute: "2-digit"
+    })}`
+  );
+}
   const normalLocations = session?.locations.filter(x => x.group === "normal") ?? [];
   const tenLocations = session?.locations.filter(x => x.group === "ten") ?? [];
   const filteredMeters = selectedLocation?.meters.filter(m => filter === "all" || (filter === "open" ? numeric(m.current) === null : numeric(m.current) !== null)) ?? [];
