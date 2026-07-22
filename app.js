@@ -174,18 +174,34 @@ const [lastSavedAt, setLastSavedAt] = useState(null);
   }
 
   function saveValue(value, changed) {
-    const timestamp = new Date().toISOString();
-    setSession(old => ({
-      ...old,
-      locations: old.locations.map(location => location.id !== selectedLocationId ? location : ({
-        ...location,
-        meters: location.meters.map(meter => meter.id !== selectedMeterId ? meter : ({ ...meter, current: value, timestamp, changed: changed || meter.changed }))
-      }))
-    }));
-    setInput("");
-    setDialog(null);
-    showToast("Wert automatisch gespeichert.");
-  }
+  const timestamp = new Date().toISOString();
+
+  setSession(old => ({
+    ...old,
+    locations: old.locations.map(location =>
+      location.id !== selectedLocationId
+        ? location
+        : {
+            ...location,
+            meters: location.meters.map(meter =>
+              meter.id !== selectedMeterId
+                ? meter
+                : {
+                    ...meter,
+                    current: value,
+                    timestamp,
+                    changed: changed || meter.changed
+                  }
+            )
+          }
+    )
+  }));
+
+  setIsDirty(true);
+  setInput("");
+  setDialog(null);
+  showToast("Wert übernommen – noch nicht gespeichert.");
+}
 
   function startNewSession() {
     if (!session) return;
