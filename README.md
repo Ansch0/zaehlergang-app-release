@@ -1,39 +1,35 @@
-# Zählergang PWA v0.0.2
+# Zählergang PWA
 
-Statische, installierbare Web-App ohne Build-Schritt. Sie kann direkt auf GitHub Pages oder einem anderen statischen Webhost veröffentlicht werden.
+## Voraussetzungen für die Entwicklung
 
-## Enthalten
+- Node.js LTS
+- ein moderner Browser
 
-- `.xlsx` und `.xlsm` lokal öffnen
-- Standorte und 10-Uhr-Ablesungen aus `Zaehlerliste_Sortiert` laden
-- Zähler aus `Daten_Ausdruck` zuordnen
-- Vormonat, Aktualwert und Info anzeigen
-- Filter: Alle / Nur offene / Erledigte
-- Werteingabe mit Touch-Ziffernblock
-- Warnung bei kleinerem Wert oder mehr als 20 % Erhöhung
-- Überschreiben vorhandener Werte
-- automatische lokale Zwischenspeicherung
-- neuer Zählergang: Aktualwert → Vormonat, Aktualwert/Zeitstempel leeren
-- Ausgabe als normale `.xlsx`
-- Service Worker für Offline-Nutzung nach dem ersten vollständigen Laden
+## Start
 
-## Datenschutz
+```bash
+npm install
+npm run dev
+```
 
-Die gewählte Excel-Datei wird ausschließlich im Browser auf dem Gerät verarbeitet. Die App lädt keine Messdaten auf einen Server hoch.
+Die lokale Adresse aus dem Terminal im Browser öffnen.
 
-## Veröffentlichung
+## Produktions-Build
 
-Alle Dateien aus diesem Ordner in das Veröffentlichungs-Repository hochladen. Danach GitHub Pages auf den Branch `main` und Ordner `/ (root)` einstellen.
+```bash
+npm run build
+npm run preview
+```
 
-## Test
+## Testablauf
 
-1. Webadresse einmal mit Internetverbindung öffnen.
-2. Excel-Datei auswählen.
-3. Standorte und Werte prüfen.
-4. Einen Testwert eingeben.
-5. `Excel sichern` wählen und die erzeugte Datei in Excel prüfen.
-6. Danach Flugmodus aktivieren und die App erneut öffnen, um den Offline-Modus zu prüfen.
+1. Nur mit einer Kopie der Excel-Datei testen.
+2. `.xlsm` oder `.xlsx` über „Zählergang öffnen“ auswählen.
+3. Prüfen, ob Standorte und Zähler korrekt erscheinen.
+4. Einen Wert erfassen.
+5. „Excel sichern“ verwenden.
+6. Die erzeugte `.xlsx` in Excel öffnen und `Daten_Ausdruck`, Spalten B–D prüfen.
 
-## Bekannte Grenze
+## Hinweis
 
-Safari kann eine bereits ausgewählte Excel-Datei nicht direkt überschreiben. Deshalb wird der laufende Stand automatisch im Browser gespeichert und über `Excel sichern` als neue Datei ausgegeben.
+Die App exportiert bewusst `.xlsx`. VBA-Makros werden nicht benötigt, da die PWA deren Funktion ersetzt.
