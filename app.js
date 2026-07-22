@@ -203,28 +203,55 @@ const [lastSavedAt, setLastSavedAt] = useState(null);
   showToast("Wert übernommen – noch nicht gespeichert.");
 }
 
-  function startNewSession() {
-    if (!session) return;
+ function startNewSession() {
+  if (!session) return;
+
+  if (isDirty) {
     setDialog({
-      title: "Neuen Zählergang beginnen",
-      message: "Die aktuellen Werte werden als Vormonatswerte übernommen. Aktualwerte und Zeitstempel werden geleert.",
-      onConfirm: () => {
-        const now = new Date();
-        setSession(old => ({
-          ...old,
-          fileName: makeNewFileName(old.fileName, now),
-          date: now.toISOString(),
-          locations: old.locations.map(location => ({
-            ...location,
-            meters: location.meters.map(meter => ({ ...meter, previous: meter.current !== "" ? meter.current : meter.previous, current: "", timestamp: "", changed: false }))
-          }))
-        }));
-        setDialog(null);
-        setScreen("locations");
-        showToast("Neuer Zählergang wurde angelegt.");
-      }
+      title: "Ungespeicherte Änderungen",
+      message:
+        "Es gibt ungespeicherte Änderungen.\n\nBitte speichern Sie den aktuellen Zählergang zuerst.",
+      confirmOnly: true
     });
+    return;
   }
+
+  setDialog({
+    title: "Neuen Zählergang beginnen",
+    message:
+      "Die aktuellen Werte werden als Vormonatswerte übernommen.\n\nAktualwerte und Zeitstempel werden geleert.",
+    onConfirm: () => {
+      const now = new Date();
+
+      setSession(old => ({
+        ...old,
+        fileName: makeNewFileName(old.fileName, now),
+        date: now.toISOString(),
+        locations: old.locations.map(location => ({
+          ...location,
+          meters: location.meters.map(meter => ({
+            ...meter,
+            previous:
+              meter.current !== ""
+                ? meter.current
+                : meter.previous,
+            current: "",
+            timestamp: "",
+            changed: false
+          }))
+        }))
+      }));
+
+      setIsDirty(false);
+      setLastSavedAt(null);
+
+      setDialog(null);
+      setScreen("locations");
+
+      showToast("Neuer Zählergang wurde angelegt.");
+    }
+  });
+}
 
   function makeNewFileName(name, date) {
     const base = `Zählergang_${date.toISOString().slice(0,10)}`;
