@@ -295,7 +295,6 @@ const [lastSavedAt, setLastSavedAt] = useState(null);
   XLSX.writeFile(
     wb,
     session.fileName || "Zaehlergang.xlsx",
-    { bookType: "xlsx" }
   );
 
   const savedAt = new Date();
